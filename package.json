@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "ts": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.26"
+  }
+}

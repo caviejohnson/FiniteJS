@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Josefin Sans', 'Sans Serif';
+            box-sizing: border-box;
+        }
+
+        .block {
+            width: 120px;
+            margin: 10px;
+            display: inline-block;
+            text-align: center;
+            background-color: #eee;
+            border: 2px solid #0009;
+            border-radius: 15px;
+        }
+
+        .block:hover {
+            background-color: #ddd;
+            border-color: #000;
+        }
+
+        .block:hover .emoji {
+            background-color: #bbb;
+        }
+
+        .new {
+            background-color: rgb(217, 115, 238);
+        }
+
+        .new .emoji {
+            background-color: rgb(205, 91, 228)
+        }
+
+        .new:hover {
+            background-color: rgb(200, 96, 221);
+        }
+
+        .new:hover .emoji {
+            background-color: rgb(186, 72, 209);
+        }
+
+        .emoji {
+            display: flex;
+            background-color: #ccc;
+            font-size: 30px;
+            border-radius: 15px 15px 0 0;
+            height: 100px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .name {
+            display: flex;
+            height: 100px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .made-by {
+            border-radius: 0 0 15px 15px;
+            height: 46px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        input {
+            height: 30px;
+            width: 500px;
+            border-radius: 30px;
+            padding: 5px 10px;
+            font-size: 20px;
+            background-color: #eee;
+            border: 2px solid #000a;
+            font-family: 'Josefin Sans', 'Sans Serif';
+            font-weight: bold;
+        }
+
+        #sort {
+            margin-left: 10px;
+            border: 2px solid #000a;
+            height: 25px;
+            width: 25px;
+            padding: 10px;
+            background-color: #ccc;
+            border-radius: 50%;
+        }
+    </style>
+    <title>FiniteJS - Infinite Craft Database Explorer</title>
+    <link rel="icon" type="image/x-icon" href="icon.svg">
+</head>
+
+<body>
+    <header>
+        <input type="text" id="search" onkeyup="search()" placeholder="Search for names..">
+        <div onclick="sort()" id="sort">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 576 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+                <path
+                    d="M183.6 469.6C177.5 476.2 169 480 160 480s-17.5-3.8-23.6-10.4l-88-96c-11.9-13-11.1-33.3 2-45.2s33.3-11.1 45.2 2L128 365.7V64c0-17.7 14.3-32 32-32s32 14.3 32 32V365.7l32.4-35.4c11.9-13 32.2-13.9 45.2-2s13.9 32.2 2 45.2l-88 96zM320 320c0-17.7 14.3-32 32-32H480c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9L429.3 416H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H352c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9L402.7 352H352c-17.7 0-32-14.3-32-32zM416 32c12.1 0 23.2 6.8 28.6 17.7l64 128 16 32c7.9 15.8 1.5 35-14.3 42.9s-35 1.5-42.9-14.3L460.2 224H371.8l-7.2 14.3c-7.9 15.8-27.1 22.2-42.9 14.3s-22.2-27.1-14.3-42.9l16-32 64-128C392.8 38.8 403.9 32 416 32zM395.8 176h40.4L416 135.6 395.8 176z" />
+            </svg>
+        </div>
+    </header>
+    <div id="container"></div>
+    <script>
+        function fakeSearch(fake) { document.getElementById('search').value = fake; search() }
+        function search() { searchFor(document.getElementById('search').value); }
+        function searchFor(searchForWhat) {
+            searchForWhat = searchForWhat.toLowerCase();
+            var x = document.getElementsByClassName('block');
+            for (i = 0; i < x.length; i++) {
+                if ((!x[i].children[1].innerHTML.toLowerCase().includes(searchForWhat))) {
+                    x[i].style.display = "none";
+                }
+                else {
+                    x[i].style.display = "inline-block";
+                }
+            }
+        }
+
+        var data;
+
+        function doFething(sortToo) {
+            fetch('all.json')
+                .then(response => response.json())
+                .then(res => {
+                    data = res
+                    if (sortToo) {
+                        data.sort((a, b) => {
+                            let nameA = a.name.toLowerCase(); // Convert names to uppercase for case-insensitive sorting
+                            let nameB = b.name.toLowerCase();
+                            if (nameA < nameB) {
+                                return -1;
+                            }
+                            if (nameA > nameB) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        console.log(data)
+                    }
+                    var container = document.getElementById('container');
+                    container.innerHTML = ''
+                    data.forEach(item => {
+                        // var block = document.createElement('div');
+                        // block.className = 'block ' + (item.isNew ? 'new' : '');
+                        // block.innerHTML = item.emoji;
+                        // var name = document.createElement('div');
+                        // name.innerHTML = item.name;
+                        // block.appendChild(name);
+                        // var madeBy = document.createElement('div');
+                        // madeBy.innerHTML = item.madeBy.join(', ');
+                        // block.appendChild(madeBy);
+                        let block = document.createElement('div')
+                        block.className = 'block ' + (item.isNew ? 'new' : '');
+
+                        let nameSize;
+                        if (item.name.length > 20) {
+                            nameSize = 22 - ((item.name.length - 20) / 2)
+                        } else {
+                            nameSize = 22
+                        }
+
+                        let madeBySize0;
+                        if (item.madeBy[0].length > 14) {
+                            madeBySize0 = 17 - ((item.madeBy[0].length - 14) / 2)
+                        } else {
+                            madeBySize0 = 17
+                        }
+
+                        let madeBySize1;
+                        if (item.madeBy[0].length > 14) {
+                            madeBySize1 = 17 - Math.ceil((item.madeBy[0].length - 14) / 2)
+                        } else {
+                            madeBySize1 = 17
+                        }
+
+                        block.innerHTML = `
+                    <div class="emoji">
+                        <span>${item.emoji}</span>
+                    </div>
+
+                    <div class="name">
+                        <span style="font-size: ${nameSize}px">${item.name}</span>
+                    </div>
+                    
+                    <div class="made-by">
+                        <div>
+                            <span style="font-size: ${madeBySize0}px" onclick="fakeSearch('${item.madeBy[0]}')">${item.madeBy[0]}</span>
+                            <div style="margin: 3px 0;"></div>
+                            <span style="font-size: ${madeBySize1}px" onclick="fakeSearch('${item.madeBy[1]}')">${item.madeBy[1]}</span>
+                        </div>
+                    </div>`
+                        container.appendChild(block);
+                    });
+                });
+        }
+
+        let sortedByDefault = true
+        function sort() {
+            document.getElementById('sort').innerHTML = sortedByDefault ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M183.6 469.6C177.5 476.2 169 480 160 480s-17.5-3.8-23.6-10.4l-88-96c-11.9-13-11.1-33.3 2-45.2s33.3-11.1 45.2 2L128 365.7V64c0-17.7 14.3-32 32-32s32 14.3 32 32V365.7l32.4-35.4c11.9-13 32.2-13.9 45.2-2s13.9 32.2 2 45.2l-88 96zM320 320c0-17.7 14.3-32 32-32H480c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9L429.3 416H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H352c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9L402.7 352H352c-17.7 0-32-14.3-32-32zM416 32c12.1 0 23.2 6.8 28.6 17.7l64 128 16 32c7.9 15.8 1.5 35-14.3 42.9s-35 1.5-42.9-14.3L460.2 224H371.8l-7.2 14.3c-7.9 15.8-27.1 22.2-42.9 14.3s-22.2-27.1-14.3-42.9l16-32 64-128C392.8 38.8 403.9 32 416 32zM395.8 176h40.4L416 135.6 395.8 176z"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M151.6 469.6C145.5 476.2 137 480 128 480s-17.5-3.8-23.6-10.4l-88-96c-11.9-13-11.1-33.3 2-45.2s33.3-11.1 45.2 2L96 365.7V64c0-17.7 14.3-32 32-32s32 14.3 32 32V365.7l32.4-35.4c11.9-13 32.2-13.9 45.2-2s13.9 32.2 2 45.2l-88 96zM320 480c-17.7 0-32-14.3-32-32s14.3-32 32-32h32c17.7 0 32 14.3 32 32s-14.3 32-32 32H320zm0-128c-17.7 0-32-14.3-32-32s14.3-32 32-32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H320zm0-128c-17.7 0-32-14.3-32-32s14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H320zm0-128c-17.7 0-32-14.3-32-32s14.3-32 32-32H544c17.7 0 32 14.3 32 32s-14.3 32-32 32H320z"/></svg>'
+            doFething(!sortedByDefault)
+            sortedByDefault = !sortedByDefault
+        }
+
+        doFething(false)
+    </script>
+</body>
+
+</html>
